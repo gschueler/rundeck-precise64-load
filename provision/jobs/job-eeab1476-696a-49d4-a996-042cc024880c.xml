@@ -1,0 +1,73 @@
+<joblist>
+  <job>
+    <id>eeab1476-696a-49d4-a996-042cc024880c</id>
+    <loglevel>INFO</loglevel>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <exec>echo hi</exec>
+      </command>
+      <command>
+        <scriptargs>100</scriptargs>
+        <script><![CDATA[#!/bin/bash
+
+echo basename: `basename $0`
+echo dirname: `dirname $0`
+echo $RD_NODE_NAME job $RD_JOB_NAME
+
+#echo "this is test.sh $0"
+#sleep 20
+echo "this is test.sh $0"
+>&2 cat<<END 
+This is stderr output, loglevel is $RD_JOB_LOGLEVEL
+END
+if [ "ERROR" = "$RD_JOB_LOGLEVEL" ] ;  then
+    exit 2
+fi
+random_line() {
+    numlines=235886
+    t=`date +%s`
+    t=`expr $t + $RANDOM`
+    a=`expr $t % $numlines + 1`
+    head -n $a $1|tail -n $2 
+}
+
+
+
+#sleep 20
+echo args $*;
+for i in "$@" ; do 
+    echo arg is ${i};
+    for h in $(seq 1 ${i}) ; do 
+        #sleep 1
+        #random_line /usr/share/dict/words 10
+        echo $RD_NODE_NAME job $RD_JOB_NAME $(random_line /usr/share/dict/words 1)
+    done
+
+done
+
+]]></script>
+      </command>
+      <command>
+        <exec>echo done </exec>
+      </command>
+      <command>
+        <exec>sleep 3</exec>
+      </command>
+    </sequence>
+    <description>remote execution</description>
+    <name>remote1</name>
+    <context>
+      <project>example</project>
+    </context>
+    <dispatch>
+      <threadcount>1</threadcount>
+      <keepgoing>true</keepgoing>
+      <excludePrecedence>true</excludePrecedence>
+      <rankOrder>ascending</rankOrder>
+    </dispatch>
+    <uuid>eeab1476-696a-49d4-a996-042cc024880c</uuid>
+    <nodefilters>
+      <filter>name: test1</filter>
+    </nodefilters>
+  </job>
+</joblist>
